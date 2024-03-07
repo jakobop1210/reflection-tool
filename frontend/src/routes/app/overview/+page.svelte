@@ -256,7 +256,6 @@
 	<div class="z-50">
 		<Toast
 			position="bottom-right"
-			simple
 			transition={slide}
 			bind:open={showSuccess}
 			divClass="w-full max-w-sm p-5"
@@ -267,7 +266,7 @@
 			<div class="text-[1.5em]">{toastBody}</div>
 		</Toast>
 
-		<Toast position="bottom-right" simple transition={slide} bind:open={showError}>
+		<Toast position="bottom-right" transition={slide} bind:open={showError}>
 			<svelte:fragment slot="icon">
 				<AlertCircleIcon />
 			</svelte:fragment>

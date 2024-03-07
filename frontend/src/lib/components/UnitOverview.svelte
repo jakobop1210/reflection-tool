@@ -407,8 +407,8 @@
 			<section class="flex items-center justify-center pt-12">
 				<Accordion
 					class="b-teal-12 mt-16 w-[300px] border-2 border-teal-12 bg-teal-1 md:mt-2 md:w-2/3"
-					activeClasses="bg-teal-1 dark:bg-fifthly text-fifthly-600 dark:text-white"
-					inactiveClasses="bg-white text-gray-500 dark:text-gray-400 hover:bg-fifthly-100 dark:hover:bg-fifthly-800"
+					activeClass="bg-teal-1 dark:bg-fifthly text-fifthly-600 dark:text-white"
+					inactiveClass="bg-white text-gray-500 dark:text-gray-400 hover:bg-fifthly-100 dark:hover:bg-fifthly-800"
 				>
 					{#if role === 'lecturer'}
 						<AccordionItem class="border-b-2 border-teal-12">
@@ -543,7 +543,6 @@
 		<div class="z-50">
 			<Toast
 				position="bottom-right"
-				simple
 				transition={slide}
 				bind:open={showSuccess}
 				divClass="w-full max-w-sm p-5"
@@ -554,7 +553,7 @@
 				<div class="text-[1.5em]">{toastBody}</div>
 			</Toast>
 
-			<Toast position="bottom-right" simple transition={slide} bind:open={showError}>
+			<Toast position="bottom-right" transition={slide} bind:open={showError}>
 				<svelte:fragment slot="icon">
 					<AlertCircleIcon />
 				</svelte:fragment>

@@ -97,8 +97,7 @@
 </script>
 
 <Navbar
-	navClass="bg-teal-12 "
-	navDivClass="bg-teal-12 text-teal-12 mx-auto flex  h-28 max-w-full items-center justify-between md:max-w-full"
+	class="bg-teal-12 text-teal-12 mx-auto flex  h-28 max-w-full items-center justify-between md:max-w-full"
 >
 	<div class="flex">
 		<NavBrand href="/app/overview" class="flex self-center">
@@ -229,7 +228,7 @@
 					dropdownOpen = !dropdownOpen;
 				}}
 			/>
-			<Dropdown {dropdownOpen}>
+			<Dropdown open={dropdownOpen}>
 				{#if invitations.length > 0}
 					{#each invitations as invitation}
 						<DropdownItem
@@ -251,7 +250,7 @@
 					Are you sure you want to join the course {activeInvitation.course_id} as {activeInvitation.role}?
 				</p>
 				<Button
-					type="Submit"
+					type="submit"
 					class="w-full1 bg-teal-9 hover:bg-teal-8"
 					on:click={() => {
 						acceptInvitation();
@@ -260,7 +259,7 @@
 				>
 
 				<Button
-					type="Submit"
+					type="submit"
 					class="w-full1 bg-teal-9 hover:bg-teal-8"
 					on:click={() => {
 						deleteInvitation();
