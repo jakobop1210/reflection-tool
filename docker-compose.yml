@@ -21,7 +21,7 @@ services:
     volumes:
       - ./db-data:/var/lib/postgresql/data/pgdata
     env_file:
-      - ./backend/.env
+      - ./api/.env
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
   frontend:
@@ -47,15 +47,15 @@ services:
     #network_mode: "host"
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload", "--root-path", "/api"]
     build:
-      context: ./backend
+      context: ./api
       dockerfile:
         Dockerfile
     volumes:
-     - ./backend:/backend/
+     - ./api:/api/
     ports:
       - 8000:80
     env_file:
-      - ./backend/.env
+      - ./api/.env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`ref.iik.ntnu.no`) && PathPrefix(`/api`) || Host(`ref.iik.ntnu.no`) && PathPrefix(`/auth`) "
