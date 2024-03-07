@@ -195,7 +195,7 @@
 				</svg>
 			</div>
 			<span
-				class="ml-8 hidden  self-center whitespace-nowrap text-[20px] font-bold text-teal-3 dark:text-white  sm:block  md:text-[25px]"
+				class="ml-8 hidden self-center whitespace-nowrap text-[20px] font-bold text-teal-3 dark:text-white sm:block md:text-[25px]"
 			>
 				NTNU_reflection
 			</span>
@@ -203,18 +203,18 @@
 	</div>
 
 	<div class="mr-5 flex items-center">
-		<span class="mr-5 hidden text-[20px]  italic text-teal-3 md:block">{user.uid}</span>
+		<span class="mr-5 hidden text-[20px] italic text-teal-3 md:block">{user.uid}</span>
 
-		<button class="mr-5 text-[16px] text-teal-3 md:text-[20px]  " on:click={handleOverview}
+		<button class="mr-5 text-[16px] text-teal-3 md:text-[20px]" on:click={handleOverview}
 			>Overview</button
 		>
 
 		<button
 			type="submit"
-			class=" mr-5 text-[16px] text-teal-3 md:text-[20px] "
+			class=" mr-5 text-[16px] text-teal-3 md:text-[20px]"
 			on:click={handleLogOut}>Log out</button
 		>
-		<div class="relative mt-0.5 ">
+		<div class="relative mt-0.5">
 			{#if invitations.length > 0}
 				<div
 					class="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-red-500 hover:cursor-default focus:outline-none"

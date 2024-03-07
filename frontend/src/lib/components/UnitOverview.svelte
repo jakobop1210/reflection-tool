@@ -271,7 +271,7 @@
 </script>
 
 <main class="flex-shrink-0">
-	<div class="relative ">
+	<div class="relative">
 		<div class="flex items-center justify-center pl-4 pr-4 pt-10">
 			<div class="header mt-5 flex flex-col border-b-2 border-teal-12 pb-3">
 				<h3 class="headline flex text-left text-xl font-bold text-teal-12">
@@ -304,7 +304,7 @@
 				<p class="ml-2 text-left">Back to overview</p>
 			</Button>
 		</div>
-		<div class="flex flex-col  md:gap-y-4">
+		<div class="flex flex-col md:gap-y-4">
 			{#if role === 'lecturer'}
 				<div class="buttonContainer flex justify-center pt-10">
 					<Button
@@ -420,7 +420,7 @@
 										class="w-50 border-stone-300 container mt-3 flex h-16 list-none justify-between rounded border-[1px] border-solid border-teal-12 bg-teal-1 p-2 hover:bg-teal-4"
 										on:click={() => goto(`${data.course_name}/reports/${report.unit_id}`)}
 									>
-										<p class="mt-3 font-semibold text-teal-12 ">
+										<p class="mt-3 font-semibold text-teal-12">
 											Report for unit "{getUnitName(report.unit_id)}"
 										</p>
 									</li>
@@ -438,18 +438,18 @@
 										class="w-50 border-stone-300 container mt-3 flex h-24 list-none justify-between rounded border-[1px] border-solid border-teal-12 bg-teal-1 p-2 hover:bg-teal-4"
 										on:click={() => goto(`${data.course_name}/${unit.id}`)}
 									>
-										<p class="mt-3 font-semibold text-teal-12 ">{unit.title}</p>
+										<p class="mt-3 font-semibold text-teal-12">{unit.title}</p>
 
 										<div class="justify-end self-center">
 											{#if data.user.reflections
 												.map((reflection) => reflection.unit_id)
 												.includes(unit.id)}
-												<div class=" flex justify-end rounded  border-teal-12">
+												<div class=" flex justify-end rounded border-teal-12">
 													<span class=" font-semibold text-[#32431b]">Answered</span>
 												</div>
 											{:else}
-												<div class=" flex justify-end rounded ">
-													<span class=" font-semibold text-[#902c2c] ">Unanswered</span>
+												<div class=" flex justify-end rounded">
+													<span class=" font-semibold text-[#902c2c]">Unanswered</span>
 												</div>
 											{/if}
 											{#if unit.date_available.toString() > stringDate}
@@ -465,7 +465,7 @@
 											class="w-50 border-stone-300 container mt-3 flex h-24 list-none justify-between rounded border-[1px] border-solid border-teal-12 bg-teal-1 p-2 hover:bg-teal-4"
 											on:click={() => goto(`${data.course_name}/${unit.id}/reflections`)}
 										>
-											<p class="mt-3 font-semibold text-teal-12 ">{unit.title}</p>
+											<p class="mt-3 font-semibold text-teal-12">{unit.title}</p>
 
 											<div class="self-center text-right">
 												{#if role === 'lecturer' || role === 'teaching assistant'}
@@ -489,7 +489,7 @@
 											class="w-50 border-stone-300 container mt-3 flex h-24 list-none justify-between rounded border-[1px] border-solid border-teal-12 bg-teal-1 p-2 hover:bg-teal-4"
 											on:click={() => goto(`${data.course_name}/${unit.id}/reflections`)}
 										>
-											<p class="mt-3 font-semibold text-teal-12 ">{'[HIDDEN] ' + unit.title}</p>
+											<p class="mt-3 font-semibold text-teal-12">{'[HIDDEN] ' + unit.title}</p>
 
 											<div class="self-center text-right">
 												{#if role === 'lecturer' || role === 'teaching assistant'}

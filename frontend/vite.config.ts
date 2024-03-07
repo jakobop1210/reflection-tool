@@ -7,6 +7,6 @@ export default defineConfig({
 		include: ['static/**/*.{test,spec}.{js,ts}']
 	},
 	build: {
-		outDir: 'dist', // Specify the output directory
-	  },
+		outDir: 'dist' // Specify the output directory
+	}
 });

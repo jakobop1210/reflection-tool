@@ -165,7 +165,7 @@
 
 <div class="p flex flex-col">
 	<div class="flex items-center justify-center pl-4 pr-4 pt-10 pb-10">
-		<div class="header flex items-center justify-center border-b-2 border-teal-12 pb-3 ">
+		<div class="header flex items-center justify-center border-b-2 border-teal-12 pb-3">
 			<h3 class="headline flex text-center text-xl font-bold text-teal-12">
 				<p class="flex text-center text-xl font-medium text-teal-12">Course overview</p>
 			</h3>
