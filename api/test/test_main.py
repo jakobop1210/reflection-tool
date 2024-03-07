@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.main import app, get_db, is_logged_in  # Adjust the import path as necessary
+from app.index import app, get_db, is_logged_in  # Adjust the import path as necessary
 from app import crud  # Adjust the import path as necessary
 from fastapi import Request
 
