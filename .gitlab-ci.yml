@@ -20,7 +20,7 @@ lint backend:
     - python --version
     - pip install --upgrade pip
     - pip install black
-    - cd api
+    - cd backend
     - black --check .
   only:
     - merge_requests
@@ -70,7 +70,7 @@ test backend:
     - echo "Testing the backend"
     - pip install --upgrade pip
     - pip install pytest httpx pytest-asyncio
-    - cd api
+    - cd backend
     - pip install -r requirements.txt
     - |
       cat <<EOF > .env

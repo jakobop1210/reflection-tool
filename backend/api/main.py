@@ -243,6 +243,13 @@ def start_db():
 async def login(request: Request):
     return await oauth.feide.authorize_redirect(request, REDIRECT_URI)
 
+@app.get("/test")
+def test():
+    return "Hello World2"
+
+@app.get("/")
+def test():
+    return "Hello World1"
 
 @app.get("/auth")
 async def auth(request: Request, db: Session = Depends(get_db)):

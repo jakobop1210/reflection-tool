@@ -13,7 +13,6 @@ sqlalchemy
 databases
 aiosqlite
 asyncpg
-psycopg2
 alembic
 fastapi_mail
 typing

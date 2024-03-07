@@ -2,7 +2,7 @@ FROM python:3.9.4-buster
 
 # RUN mkdir build
 # RUN mkdir certs
-WORKDIR /api
+WORKDIR /backend
 
 COPY . .
 
