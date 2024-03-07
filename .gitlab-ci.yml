@@ -27,7 +27,7 @@ lint backend:
 
 lint frontend:
   stage: lint
-  image: node:19
+  image: node:20
   script:
     - echo "Linting the frontend"
     - cd frontend
@@ -39,7 +39,7 @@ lint frontend:
 
 build frontend:
   stage: build
-  image: node:19
+  image: node:20
   script:
     - echo "Building the project"
     - cd frontend
@@ -52,7 +52,7 @@ build frontend:
 
 frontend check:
   stage: duplicate-check
-  image: node:19
+  image: node:20
   script:
     - echo "Checking for duplicate files in the frontend"
     - cd frontend
