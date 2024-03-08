@@ -8,20 +8,14 @@ from starlette.datastructures import Secret
 config = Config(".env")
 
 if config("production", cast=bool, default=False):
-    postgres_user = str(config("POSTGRES_USER", cast=Secret))
-    postgres_pass = str(config("POSTGRES_PASSWORD", cast=Secret))
-    DATABASE_URL = (
-        f"postgresql://{postgres_user}:{postgres_pass}@reflect_v2_db_1:5432/reflect"
-    )
-    # database = databases.Database(DATABASE_URL)
-    engine = create_engine(DATABASE_URL)
+    DATABASE_URI = str(config("DATABASE_URI", cast=Secret))
+    engine = create_engine(DATABASE_URI)
 else:
     if config("TEST", cast=bool, default=False):
         DATABASE_URL = "sqlite:///./test.db"
     else:
         DATABASE_URL = "sqlite:///./reflect.db"
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-    # engine = create_engine("postgresql://sondrealf:p5MwOr8FlXHI@ep-sweet-violet-a20afd17.eu-central-1.aws.neon.tech/neondb?sslmode=require")
 
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
