@@ -3,6 +3,7 @@ stages:
   - build
   - duplicate-check
   - test
+  - deploy
 
 variables:
   PUBLIC_API_URL: "http://127.0.0.1:8000"
@@ -91,3 +92,63 @@ test backend:
     - pytest -p no:warnings
   only:
     - merge_requests
+
+deploy-frontend:
+  stage: deploy
+  image: node:19
+  script:
+    - echo "Deploying to Vercel for the frontend"
+    - cd frontend
+    - |
+      cat <<EOF > .env
+      PUBLIC_API_URL = $PUBLIC_API_URL
+    - npx vercel --token $VERCEL_TOKEN --confirm=n --prod
+  only:
+    - merge_requests
+  environment:
+    name: production
+  variables:
+    VERCEL_TOKEN: $VERCEL_TOKEN
+    PUBLIC_API_URL: $PUBLIC_API_URL
+
+deploy-backend:
+  stage: deploy
+  image: python:3.9
+  script:
+    - echo "Deploying to Heroku for the backend"
+    - cd backend
+    - |
+      cat <<EOF > .env
+      SECRET_KEY = $SECRET_KEY
+      isAdmin=false
+      production = true
+      client_id = $CLIENT_ID
+      client_secret = $CLIENT_SECRET
+      REDIRECT_URI = $REDIRECT_URI
+      BASE_URL = $BASE_URL
+      MAIL_USERNAME = $MAIL_USERNAME
+      MAIL_PASSWORD = $MAIL_PASSWORD
+      MAIL_FROM = $MAIL_FROM
+      MAIL_PORT = $MAIL_PORT
+      MAIL_SERVER = $MAIL_SERVER
+      UID = ""
+      EMAIL_USER = ""
+      USER_EMAIL = ""
+    - npx vercel --token $VERCEL_TOKEN --confirm=n --prod
+  variables:
+    VERCEL_TOKEN: $VERCEL_TOKEN
+    SECRET_KEY: $SECRET_KEY
+    CLIENT_ID: $CLIENT_ID
+    CLIENT_SECRET: $CLIENT_SECRET
+    REDIRECT_URI: $REDIRECT_URI
+    BASE_URL: $BASE_URL
+    MAIL_USERNAME: $MAIL_USERNAME
+    MAIL_PASSWORD: $MAIL_PASSWORD
+    MAIL_FROM: $MAIL_FROM
+    MAIL_PORT: $MAIL_PORT
+    MAIL_SERVER: $MAIL_SERVER
+  only:
+    - merge_requests
+  environment:
+    name: production
+
