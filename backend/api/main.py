@@ -245,8 +245,15 @@ async def login(request: Request):
 
 
 @app.get("/test")
-def test():
-    return "Hello World2"
+def test(db: Session = Depends(get_db)):
+    users = crud.get_all_users(db)
+    return users
+
+
+@app.get("/test2")
+def test2(db: Session = Depends(get_db)):
+    crud.create_user(db, uid="test4", user_email="test4@test.no")
+    return "test2"
 
 
 @app.get("/")

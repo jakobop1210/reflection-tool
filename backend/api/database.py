@@ -21,6 +21,7 @@ else:
     else:
         DATABASE_URL = "sqlite:///./reflect.db"
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+    # engine = create_engine("postgresql://sondrealf:p5MwOr8FlXHI@ep-sweet-violet-a20afd17.eu-central-1.aws.neon.tech/neondb?sslmode=require")
 
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
