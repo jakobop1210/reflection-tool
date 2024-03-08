@@ -114,7 +114,7 @@ deploy-frontend:
 
 deploy-backend:
   stage: deploy
-  image: python:3.9
+  image: node:19
   script:
     - echo "Deploying to Heroku for the backend"
     - cd backend
