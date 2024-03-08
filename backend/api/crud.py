@@ -76,10 +76,10 @@ def get_course(db: Session, course_id: str, course_semester: str):
         .filter(model.Course.id == course_id, model.Course.semester == course_semester)
         .first()
     )
-    
+
+
 def get_all_users(db: Session):
     return db.query(model.User).all()
-
 
 
 # --- Enrollment ---
