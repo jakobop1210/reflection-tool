@@ -244,23 +244,6 @@ async def login(request: Request):
     return await oauth.feide.authorize_redirect(request, REDIRECT_URI)
 
 
-@app.get("/test")
-def test(db: Session = Depends(get_db)):
-    users = crud.get_all_users(db)
-    return users
-
-
-@app.get("/test2")
-def test2(db: Session = Depends(get_db)):
-    crud.create_user(db, uid="test4", user_email="test4@test.no")
-    return "test2"
-
-
-@app.get("/")
-def test():
-    return "Hello World1"
-
-
 @app.get("/auth")
 async def auth(request: Request, db: Session = Depends(get_db)):
     try:

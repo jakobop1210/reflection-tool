@@ -78,10 +78,6 @@ def get_course(db: Session, course_id: str, course_semester: str):
     )
 
 
-def get_all_users(db: Session):
-    return db.query(model.User).all()
-
-
 # --- Enrollment ---
 
 
