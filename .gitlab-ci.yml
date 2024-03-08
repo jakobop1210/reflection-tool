@@ -102,6 +102,7 @@ deploy-frontend:
     - |
       cat <<EOF > .env
       PUBLIC_API_URL = $PUBLIC_API_URL
+      EOF
     - npx vercel --token $VERCEL_TOKEN --confirm=n --prod
   only:
     - merge_requests
@@ -134,6 +135,7 @@ deploy-backend:
       UID = ""
       EMAIL_USER = ""
       USER_EMAIL = ""
+      EOF
     - npx vercel --token $VERCEL_TOKEN --confirm=n --prod
   variables:
     VERCEL_TOKEN: $VERCEL_TOKEN
