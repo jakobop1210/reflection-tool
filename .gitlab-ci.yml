@@ -125,6 +125,7 @@ deploy-backend:
       production = true
       client_id = $CLIENT_ID
       client_secret = $CLIENT_SECRET
+      DATABASE_URI = $DATABASE_URI
       REDIRECT_URI = $REDIRECT_URI
       BASE_URL = $BASE_URL
       MAIL_USERNAME = $MAIL_USERNAME
@@ -149,6 +150,7 @@ deploy-backend:
     MAIL_FROM: $MAIL_FROM
     MAIL_PORT: $MAIL_PORT
     MAIL_SERVER: $MAIL_SERVER
+    DATABASE_URI: $DATABASE_URI
   only:
     - merge_requests
   environment:
