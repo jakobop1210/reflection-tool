@@ -180,6 +180,15 @@ class ReportBase(BaseModel):
         orm_mode = True
 
 
+class AutomaticReport(BaseModel):
+    unit_id: int
+    course_id: str
+    course_semester: str
+
+    class Config:
+        orm_mode = True
+
+
 class ReportCreate(ReportBase):
     report_content: Dict[str, Dict[str, List[str]]] = []
     pass
@@ -211,10 +220,7 @@ class EmailSchema(BaseModel):
 
 
 class ReflectionJSONFormat(BaseModel):
-    learning_unit: str
-    participation: str
     answers: List[str]
-    key: int
 
 
 class ReflectionJSON(BaseModel):
