@@ -557,6 +557,9 @@ async def download_file(
                 500,
                 detail="An error occurred while generating the report, you may have not generated a report yet.",
             )
+            
+        if is_prod():
+            return report_dict
 
         with open("report.txt", "w") as f:
             f.write(json.dumps(report_dict, indent=4))
