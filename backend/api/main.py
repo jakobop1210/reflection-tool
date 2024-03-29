@@ -557,7 +557,7 @@ async def download_file(
                 500,
                 detail="An error occurred while generating the report, you may have not generated a report yet.",
             )
-            
+
         if is_prod():
             return report_dict
 
