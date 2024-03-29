@@ -107,7 +107,7 @@ deploy-frontend:
   only:
     - merge_requests
   environment:
-    name: production
+    name: dev
   variables:
     VERCEL_TOKEN: $VERCEL_TOKEN
     PUBLIC_API_URL: $PUBLIC_API_URL
@@ -155,7 +155,7 @@ deploy-backend:
     DATABASE_URI: $DATABASE_URI
     OPENAI_KEY: $OPENAI_KEY
   only:
-    - merge_requests
+    - dev
   environment:
     name: production
 
