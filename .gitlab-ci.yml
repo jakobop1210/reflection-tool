@@ -105,9 +105,9 @@ deploy-frontend:
       EOF
     - npx vercel --token $VERCEL_TOKEN --confirm=n --prod --name frontend
   only:
-    - merge_requests
+    - dev
   environment:
-    name: dev
+    name: production
   variables:
     VERCEL_TOKEN: $VERCEL_TOKEN
     PUBLIC_API_URL: $PUBLIC_API_URL
