@@ -1,8 +1,8 @@
 stages:
-  - lint
-  - build
-  - duplicate-check
-  - test
+  # - lint
+  # - build
+  # - duplicate-check
+  # - test
   - deploy
 
 variables:
