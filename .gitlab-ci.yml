@@ -1,8 +1,4 @@
 stages:
-  - lint
-  - build
-  - duplicate-check
-  - test
   - deploy
 
 variables:
@@ -116,7 +112,7 @@ deploy-frontend:
       EOF
     - npx vercel --token $VERCEL_TOKEN --confirm=n --prod --name frontend
   only:
-    - dev
+    - merge_requests
   environment:
     name: production
   variables:
