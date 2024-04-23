@@ -52,10 +52,7 @@ NOTIFICATION_LIMIT = config("NOTIFICATION_LIMIT", cast=int, default=2)
 
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
-if config("production", cast=bool, default=True):
-    allowed_origin = config("PRODUCTION_ORIGIN", cast=str, default="")
-else:
-    allowed_origin = "http://127.0.0.1:5173"
+allowed_origin = "*"
 
 app.add_middleware(
     CORSMiddleware,
