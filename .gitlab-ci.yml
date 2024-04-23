@@ -169,7 +169,7 @@ deploy-backend:
     DATABASE_URI: $DATABASE_URI
     OPENAI_KEY: $OPENAI_KEY
   only:
-    - dev
+    - merge_requests
   environment:
     name: production
 
