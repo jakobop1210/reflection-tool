@@ -177,7 +177,7 @@ async def start_db():
     course_name: str = "Informasjonsteknologi grunnkurs"
     db = SessionLocal()
     course = crud.get_course(db, course_id=course_id, course_semester=semester)
-    if course or is_prod():
+    if course:
         return
 
     course = crud.create_course(
