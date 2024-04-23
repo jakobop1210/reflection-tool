@@ -23,7 +23,11 @@ export const load: Load = async ({ fetch, url, depends }) => {
 	}
 	try {
 		const user_url = `${PUBLIC_API_URL}/user`;
+		console.log('fetching');
+
 		const response = await fetch(user_url, { credentials: 'include' });
+
+		console.log('response', response);
 
 		if (response.status !== 200) {
 			logged_in.set(false);
@@ -34,6 +38,9 @@ export const load: Load = async ({ fetch, url, depends }) => {
 				goto('/');
 			}
 		}
+
+		console.log('creating user');
+
 		const user = (await response.json()) as User;
 
 		return { user: user };
