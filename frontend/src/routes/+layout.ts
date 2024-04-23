@@ -20,11 +20,23 @@ export const load: Load = async ({ fetch, url, depends }) => {
 			sessionStorage.removeItem('savedRoute');
 		}
 	}
+	try {
+		const user_url = `${PUBLIC_API_URL}/user`;
+		const response = await fetch(user_url, { credentials: 'include' });
 
-	const user_url = `${PUBLIC_API_URL}/user`;
-	const response = await fetch(user_url, { credentials: 'include' });
+		if (response.status !== 200) {
+			logged_in.set(false);
+			if (url.pathname !== '/') {
+				sessionStorage.setItem('savedRoute', window.location.pathname);
+			}
+			if (url.pathname !== '/') {
+				goto('/');
+			}
+		}
+		const user = (await response.json()) as User;
 
-	if (response.status == 401 || response.status == 404) {
+		return { user: user };
+	} catch (error) {
 		logged_in.set(false);
 		if (url.pathname !== '/') {
 			sessionStorage.setItem('savedRoute', window.location.pathname);
@@ -32,9 +44,6 @@ export const load: Load = async ({ fetch, url, depends }) => {
 		if (url.pathname !== '/') {
 			goto('/');
 		}
+		return {};
 	}
-
-	const user = (await response.json()) as User;
-
-	return { user: user };
 };
