@@ -5,6 +5,11 @@
 	import { Card, Button, Badge } from 'flowbite-svelte';
 	import { PUBLIC_API_URL } from '$env/static/public';
 
+	/**
+	 * Formats the semester string to a more readable format.
+	 * @param semester - The semester string to format.
+	 * @returns The formatted semester string.
+	 */
 	const formatSemester = (semester: string): string => {
 		const season = semester.slice(0, -4);
 		const year = semester.slice(-4);
@@ -12,6 +17,7 @@
 	};
 </script>
 
+<!-- Display the course cards for the user -->
 {#each courses as course}
 	<Card
 		on:click={() => goto(`/courseview/${course.course_semester}/${course.course_id}`)}
