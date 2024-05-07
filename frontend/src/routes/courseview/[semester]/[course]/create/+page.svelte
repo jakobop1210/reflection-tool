@@ -22,6 +22,11 @@
 	 * @returns {Promise<{result: any, status: number}>} - The JSON result of the API call and the HTTP status code.
 	 */
 	async function createUnit(form: FormData) {
+		if (!unitName || !availableDate) {
+			toast.error('Please fill in all fields');
+			return;
+		}
+
 		const response = await fetch(`${PUBLIC_API_URL}/create_unit`, {
 			method: 'POST',
 			credentials: 'include',
@@ -77,6 +82,8 @@
 			if ($isSubmitting) {
 				const titleErrors = validateUnitTitle(values.title);
 				if (titleErrors) {
+					console.log('------ errrrooo');
+
 					errors.title = Array.isArray(titleErrors) ? titleErrors : [titleErrors];
 				}
 			}
