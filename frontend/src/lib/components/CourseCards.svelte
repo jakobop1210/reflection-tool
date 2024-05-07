@@ -3,7 +3,6 @@
 	export let courses: Enrollment[];
 	export let role: string;
 	import { Card, Button, Badge } from 'flowbite-svelte';
-	import { PUBLIC_API_URL } from '$env/static/public';
 
 	/**
 	 * Formats the semester string to a more readable format.
@@ -21,7 +20,7 @@
 {#each courses as course}
 	<Card
 		on:click={() => goto(`/courseview/${course.course_semester}/${course.course_id}`)}
-		class="m-auto cursor-pointer hover:bg-teal-2 dark:bg-gray-800 dark:hover:bg-gray-700"
+		class="m-auto cursor-pointer hover:bg-teal-2 dark:bg-gray-800 dark:hover:bg-gray-700 relative"
 		id={course.course_id}
 	>
 		<h5
@@ -44,5 +43,12 @@
 				<Badge large color="green" class="ml-2 select-none" id="studentBadge">Student</Badge>
 			{/if}
 		</div>
+		{#if course.missingUnits.length > 0}
+			<p
+				class="absolute top-[-10px] right-[-5px] rounded-full w-auto min-w-6 h-6 bg-red-500 text-white text-xs font-bold text-center px-2"
+			>
+				{course.missingUnits.length}
+			</p>
+		{/if}
 	</Card>
 {/each}
