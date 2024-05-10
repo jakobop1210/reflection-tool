@@ -13,6 +13,8 @@ from starlette.responses import JSONResponse
 
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 
+config = Config(".env")
+
 
 def create_invitation(request, ref, db):
     user = request.session.get("user")
@@ -44,7 +46,6 @@ def get_invitations(request, db):
     return crud.get_invitations(db, uid)
 
 
-config = Config(".env")
 NOTIFICATION_COOLDOWN_DAYS = config("NOTIFICATION_COOLDOWN_DAYS", cast=int, default=1)
 NOTIFICATION_LIMIT = config("NOTIFICATION_LIMIT", cast=int, default=2)
 

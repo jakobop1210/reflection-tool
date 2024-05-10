@@ -6,7 +6,7 @@ from typing import List
 import requests
 from requests.structures import CaseInsensitiveDict
 from api.utils.exceptions import DataProcessingError, OpenAIRequestError
-from backend.api import auth, courses, units
+from backend.api import auth, reflections, reports, courses, units
 from backend.api.auth import is_admin, protect_route
 from backend.api import notifications
 from backend.api.notifications import (
@@ -205,26 +205,7 @@ async def create_reflection(
     This saves the response a user has given to a question in a unit.
     """
     protect_route(request)
-
-    unit = crud.get_unit(db, ref.unit_id)
-    if unit is None:
-        raise HTTPException(404, detail="Unit cannot be found")
-
-    if crud.get_question(db, ref.question_id) is None:
-        raise HTTPException(404, detail="Question cannot be found")
-
-    if unit.hidden:
-        raise HTTPException(403, detail="Unit cannot be reflected when hidden")
-
-    if crud.user_already_reflected_on_question(
-        db, ref.unit_id, ref.user_id, ref.question_id
-    ):
-        raise HTTPException(403, detail="You have already reflected this question")
-
-    if unit.date_available > date.today():
-        raise HTTPException(403, detail="This unit is not available")
-
-    return crud.create_reflection(db, reflection_data=ref.dict())
+    reflections.create_reflection(ref, db)
 
 
 @app.delete("/delete_reflection", response_model=schemas.ReflectionDelete)
@@ -235,13 +216,7 @@ async def delete_reflection(
     Deletes a reflection based on the user ID, unit ID, and question ID provided in the `ref` object.
     """
     protect_route(request)
-
-    if is_admin(db, request):
-        return crud.delete_reflection(db, ref.user_id, ref.unit_id)
-    else:
-        raise HTTPException(
-            403, detail="You do not have permission to delete this reflection"
-        )
+    reflections.delete_reflection(db, ref, request)
 
 
 # Example: /course?course_id=TDT4100&course_semester=fall2023
@@ -349,16 +324,6 @@ async def delete_unit(
     return await units.delete_unit(request, unit_id, ref, db)
 
 
-# For deleting a unit after it has been created
-class FileResponseWithDeletion(FileResponse):
-    def __init__(self, path: str, filename: str, **kwargs):
-        super().__init__(path, filename=filename, **kwargs)
-
-    async def __call__(self, scope, receive, send):
-        await super().__call__(scope, receive, send)
-        os.remove(self.path)
-
-
 @app.get("/download")
 async def download_file(
     request: Request,
@@ -370,39 +335,7 @@ async def download_file(
     Downloads the provided report file.
     """
     protect_route(request)
-
-    user = request.session.get("user")
-    uid: str = user.get("uid")
-    enrollment = crud.get_enrollment(db, ref.course_id, ref.course_semester, uid)
-    if is_admin(db, request) or enrollment.role in ["lecturer"]:
-        report = await get_report(
-            request,
-            params=schemas.AutomaticReport(
-                course_id=ref.course_id,
-                course_semester=ref.course_semester,
-                unit_id=ref.unit_id,
-            ),
-            db=db,
-        )
-
-        try:
-            report_dict = report.to_dict()
-        except Exception as e:
-            raise HTTPException(
-                500,
-                detail=f"An error occurred while generating the report, you may have not generated a report yet. Error: {str(e)}",
-            )
-
-        if config("SERVERLESS", cast=bool, default=False):
-            return json.dumps(report_dict, indent=4)
-
-        with open("report.txt", "w") as f:
-            f.write(json.dumps(report_dict, indent=4))
-
-        path = os.getcwd() + "/report.txt"
-        return FileResponseWithDeletion(path, filename="report.txt")
-
-    return Response(status_code=403)
+    reports.download_file(request, ref, db)
 
 
 # Example: /unit_data?course_id=TDT4100&course_semester=fall2023&unit_id=1
@@ -428,12 +361,7 @@ async def save_report_endpoint(
 ):
     if not is_admin(db, request):
         raise HTTPException(403, detail="You are not an admin user")
-    try:
-        return crud.save_report(db, report=ref.model_dump())
-    except IntegrityError as e:
-        raise HTTPException(
-            409, detail="An error occurred while saving the report: " + str(e)
-        )
+    reports.save_report(db, ref)
 
 
 @app.get("/report")
@@ -446,15 +374,7 @@ async def get_report(
     Retrieve a report from the database based on the provided parameters such as course id, unit id, and course semester.
     """
     protect_route(request)
-    report = crud.get_report(
-        db,
-        course_id=params.course_id,
-        unit_id=params.unit_id,
-        course_semester=params.course_semester,
-    )
-    if report is None:
-        raise HTTPException(status_code=404, detail="Report not found")
-    return report
+    reports.get_report(params, db)
 
 
 @app.post("/create_invitation", response_model=schemas.Invitation)
@@ -515,43 +435,7 @@ async def analyze_feedback(ref: schemas.ReflectionJSON):
     5. Generating a summary of the categorized feedback.
     """
 
-    # Adds a key to each student feedback dict to identify the student and filter out irrelevant information
-    student_feedback_dicts = [
-        {
-            **{"key": index + 1},
-            **{
-                key: item[key]
-                for key in item
-                if key not in ["learning_unit", "participation"]
-            },
-        }
-        for index, item in enumerate(
-            (item.model_dump() for item in ref.student_feedback)
-        )
-    ]
-
-    categories = createCategories(
-        ref.api_key, ref.questions, student_feedback_dicts, ref.use_cheap_model
-    )
-
-    sorted_feedback = sort(
-        ref.api_key,
-        ref.questions,
-        categories,
-        student_feedback_dicts,
-        ref.use_cheap_model,
-    )
-
-    sorted_feedback = enforce_unique_categories(sorted_feedback)
-
-    stringAnswered = transformKeysToAnswers(
-        sorted_feedback, ref.questions, student_feedback_dicts
-    )
-
-    summary = createSummary(ref.api_key, stringAnswered, ref.use_cheap_model)
-    stringAnswered["Summary"] = summary["summary"]
-
-    return stringAnswered
+    reflections.analyze_feedback(ref)
 
 
 @app.delete("/unenroll_course")
@@ -577,7 +461,7 @@ async def delete_course(
 
 
 @app.post("/generate_report")
-async def generate_report_endpoint(
+async def generate_report(
     request: Request, ref: schemas.AutomaticReport, db: Session = Depends(get_db)
 ):
     """
@@ -585,55 +469,7 @@ async def generate_report_endpoint(
     """
     if not is_admin(db, request):
         raise HTTPException(403, detail="You are not an admin user")
-    try:
-        unit_data = await get_unit_data(
-            request, ref.course_id, ref.course_semester, ref.unit_id, db
-        )
-
-        questions = [q["comment"] for q in unit_data["unit_questions"]]
-        reflections = unit_data["unit"].reflections
-
-        student_answers = {}
-        for reflection in reflections:
-            if reflection.user_id not in student_answers:
-                student_answers[reflection.user_id] = {"answers": [reflection.body]}
-            else:
-                student_answers[reflection.user_id]["answers"].append(reflection.body)
-
-        student_feedback = [
-            {"answers": student_answers[student]["answers"]}
-            for student in student_answers
-        ]
-
-        feedback = schemas.ReflectionJSON(
-            api_key=config("OPENAI_KEY", cast=str),
-            questions=questions,
-            student_feedback=student_feedback,
-            use_cheap_model=True,
-        )
-
-        analyze = await analyze_feedback(feedback)
-
-        try:
-            await save_report_endpoint(
-                request,
-                ref=schemas.AnalyzeReportCreate(
-                    number_of_answers=len(student_feedback),
-                    report_content=analyze,
-                    unit_id=ref.unit_id,
-                    course_id=ref.course_id,
-                    course_semester=ref.course_semester,
-                ),
-                db=db,
-            )
-            crud.reset_reflections_count(db, ref.unit_id)
-        except:
-            raise HTTPException(500, detail="An error occurred while saving the report")
-        return HTTPException(200, detail="Report generated and saved successfully")
-    except IntegrityError as e:
-        raise HTTPException(
-            409, detail="An error occurred while generating the report: " + str(e)
-        )
+    reports.generate_report(request, ref, db)
 
 
 @app.exception_handler(DataProcessingError)
