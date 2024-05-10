@@ -43,6 +43,7 @@ SECRET_KEY = config("SECRET_KEY", cast=Secret)
 CLIENT_ID = str(config("client_id", cast=Secret))
 CLIENT_SECRET = str(config("client_secret", cast=Secret))
 
+
 def is_prod():
     return config("production", cast=bool, default=False)
 
@@ -64,6 +65,7 @@ oauth.register(
     client_id=CLIENT_ID,
     client_secret=CLIENT_SECRET,
 )
+
 
 def check_is_admin(bearer_token):
     """
@@ -106,7 +108,6 @@ def get_user_data(bearer_token):
     return str(resp.content.decode())
 
 
-
 def is_logged_in(request):
     user = request.session.get("user")
     return user is not None
@@ -129,6 +130,7 @@ def is_admin(db, request):
     if user is None:
         return False
     return user.admin
+
 
 async def auth(request: Request, db):
     try:
