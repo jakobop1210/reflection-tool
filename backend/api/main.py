@@ -6,7 +6,7 @@ from typing import List
 import requests
 from requests.structures import CaseInsensitiveDict
 from api.utils.exceptions import DataProcessingError, OpenAIRequestError
-from backend.api import auth
+from backend.api import auth, courses
 from backend.api.auth import is_admin, protect_route
 from backend.api import notifications
 from backend.api.notifications import (
@@ -246,24 +246,14 @@ async def delete_reflection(
 
 # Example: /course?course_id=TDT4100&course_semester=fall2023
 @app.get("/course", response_model=schemas.Course)
-async def course(
+async def getcourse(
     request: Request,
     course_id: str,
     course_semester: str,
     db: Session = Depends(get_db),
 ):
-    """
-    Retrieves a course based on the course ID and course semester provided.
-    """
     protect_route(request)
-
-    course = crud.get_course(db, course_id=course_id, course_semester=course_semester)
-    if course is None:
-        raise HTTPException(404, detail="Course not found")
-
-    print("course found")
-    print(course)
-    return course
+    return courses.course(course_id, course_semester, db)
 
 
 @app.get("/user", response_model=schemas.User)
@@ -274,38 +264,7 @@ async def user(request: Request, db: Session = Depends(get_db)):
     It will also return the users enrollments and missing units.
     """
     protect_route(request)
-
-    user = request.session.get("user")
-    uid: str = user.get("uid")
-    user = crud.get_user(db, uid)
-
-    for enrollment in user.enrollments:
-        course = crud.get_course(db, enrollment.course_id, enrollment.course_semester)
-        enrollment.course_name = course.name
-        if enrollment.role not in ["lecturer", "teaching assistant"]:
-            today = datetime.now().date()
-            enrollment.missingUnits = [
-                {"id": unit.id, "date": unit.date_available}
-                for unit in crud.get_units_for_course(
-                    db, enrollment.course_id, enrollment.course_semester
-                )
-                if unit.date_available and unit.date_available <= today
-            ]
-            reflected_units = {reflection.unit_id for reflection in user.reflections}
-            enrollment.missingUnits = [
-                unit
-                for unit in enrollment.missingUnits
-                if unit["id"] not in reflected_units
-            ]
-
-    if user == None:
-        request.session.pop("user")
-        raise HTTPException(404, detail="User not found")
-
-    if config("isAdmin", cast=bool, default=False):
-        user.admin = True
-
-    return user
+    return await auth.user(request, db)
 
 
 @app.post("/create_course", response_model=schemas.Enrollment)
@@ -316,23 +275,7 @@ async def create_course(
     Creates a course based on the data provided in the `ref` object.
     """
     protect_route(request)
-    user = request.session.get("user")
-    uid: str = user.get("uid")
-
-    if not is_admin(db, request):
-        raise HTTPException(403, detail="You are not an admin user")
-    try:
-        crud.create_course(db, course=ref.dict())
-        return await crud.create_enrollment(
-            db,
-            role="lecturer",
-            course_id=ref.id,
-            course_semester=ref.semester,
-            uid=uid,
-        )
-
-    except IntegrityError:
-        raise HTTPException(409, detail="Course already exists")
+    return await courses.create_course(request, ref, db)
 
 
 # enroll self in course
@@ -345,50 +288,7 @@ async def enroll(
     This will also enroll a user if they have a private invitation to the course.
     """
     protect_route(request)
-
-    course = crud.get_course(
-        db, course_id=ref.course_id, course_semester=ref.course_semester
-    )
-
-    if course == None:
-        raise HTTPException(404, detail="Course not found")
-
-    user = request.session.get("user")
-    uid: str = user.get("uid")
-    if user is None:
-        raise HTTPException(401, detail="Cannot find your user")
-
-    invitations = crud.get_invitations(db, uid)
-    if invitations is not None:
-        priv_inv = crud.get_priv_invitations_course(
-            db, uid, ref.course_id, ref.course_semester
-        )
-        if len(priv_inv) != 0 or is_admin(db, request):
-            try:
-
-                return await crud.create_enrollment(
-                    db,
-                    role=ref.role,
-                    course_id=ref.course_id,
-                    course_semester=ref.course_semester,
-                    uid=uid,
-                )
-            except IntegrityError:
-                raise HTTPException(409, detail="User already enrolled in this course")
-
-    if ref.role == "student" or is_admin(db, request):
-        try:
-            return await crud.create_enrollment(
-                db,
-                role=ref.role,
-                course_id=ref.course_id,
-                course_semester=ref.course_semester,
-                uid=uid,
-            )
-        except IntegrityError:
-            raise HTTPException(409, detail="User already enrolled in this course")
-
-    raise HTTPException(403, detail="User not allowed to enroll")
+    return await courses.enroll(request, ref, db)
 
 
 # Example: /units?course_id=TDT4100&course_semester=fall2023
@@ -800,12 +700,7 @@ async def unenroll_course(
     Unenrolls the user from a course based on the course ID and course semester provided in the `ref` object.
     """
     protect_route(request)
-    try:
-        user = request.session.get("user")
-        uid = user.get("uid")
-        return crud.delete_enrollment(db, uid, ref.course_id, ref.course_semester)
-    except IntegrityError:
-        raise HTTPException(409, detail="Course already exists")
+    return await courses.unenroll_course(request, ref, db)
 
 
 @app.delete("/delete_course")
@@ -816,12 +711,7 @@ async def delete_course(
     Deletes a course based on the course ID and course semester provided in the `ref` object.
     """
     protect_route(request)
-    if not is_admin(db, request):
-        raise HTTPException(403, detail="You are not an admin user")
-    try:
-        return crud.delete_course(db, ref.id, ref.semester)
-    except IntegrityError:
-        raise HTTPException(409, detail="Course already exists")
+    return await courses.delete_course(request, ref, db)
 
 
 @app.post("/generate_report")
