@@ -1,17 +1,14 @@
 from typing import List
 
 from api.utils.exceptions import DataProcessingError, OpenAIRequestError
-from backend.api import auth, reflections, reports, courses, units
+from backend.api import auth, reflections, reports, courses, units, notifications
 from backend.api.auth import is_admin, protect_route
-from backend.api import notifications
 
 
 from . import crud
 from . import model
 from . import schemas
 
-from authlib.integrations.starlette_client import OAuth
-from .database import engine
 from authlib.integrations.starlette_client import OAuth
 from .database import engine, get_db
 from fastapi import Depends, FastAPI, HTTPException, Request
