@@ -1,41 +1,13 @@
 from http.client import HTTPException
 from backend.api import crud
-from backend.api.auth import is_admin, protect_route
-import json
-import os
-from datetime import datetime, date
-from typing import List
+from backend.api.auth import is_admin
 
-import requests
-from requests.structures import CaseInsensitiveDict
-from api.utils.exceptions import DataProcessingError, OpenAIRequestError
-from prompting.enforceUniqueCategories import enforce_unique_categories
-from prompting.summary import createSummary
-from prompting.transformKeysToAnswers import transformKeysToAnswers
-from prompting.sort import sort
-from prompting.createCategories import createCategories
 
 from . import crud
-from . import model
 from . import schemas
 
-from authlib.integrations.starlette_client import OAuth, OAuthError
-from .database import SessionLocal, engine
-from fastapi import Depends, FastAPI, HTTPException, Query, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import JSONResponse
+from fastapi import HTTPException, Request
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
-from starlette.config import Config
-from starlette.datastructures import Secret
-from starlette.middleware.sessions import SessionMiddleware
-from starlette.responses import RedirectResponse, Response, JSONResponse
-
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
-from fastapi.responses import FileResponse
 
 
 async def course(course_id: str, course_semester: str, db):
