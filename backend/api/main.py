@@ -138,7 +138,7 @@ async def getcourse(
     db: Session = Depends(get_db),
 ):
     protect_route(request)
-    return courses.course(course_id, course_semester, db)
+    return await courses.course(course_id, course_semester, db)
 
 
 @app.get("/user", response_model=schemas.User)
