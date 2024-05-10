@@ -1,6 +1,6 @@
 from http.client import HTTPException
-from backend.api import crud
-from backend.api.auth import is_admin
+from api import crud
+from api.auth import is_admin
 
 
 from . import crud

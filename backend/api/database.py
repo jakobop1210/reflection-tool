@@ -1,10 +1,9 @@
-from backend.api import crud
+from api import crud
 from datetime import datetime
 
 
 from . import crud
 
-from .database import SessionLocal, engine
 from starlette.config import Config
 from starlette.datastructures import Secret
 

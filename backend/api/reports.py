@@ -1,9 +1,9 @@
 import json
 import os
 
-from backend.api.auth import is_admin
-from backend.api.main import get_unit_data, save_report_endpoint
-from backend.api.reflections import analyze_feedback
+from api.auth import is_admin
+from api.main import get_unit_data, save_report_endpoint
+from api.reflections import analyze_feedback
 
 from . import crud
 from . import schemas

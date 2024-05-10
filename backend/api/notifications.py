@@ -1,6 +1,6 @@
 from typing import List
 
-from backend.api.main import is_admin
+from api.main import is_admin
 
 from . import crud
 from . import model

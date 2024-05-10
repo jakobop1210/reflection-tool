@@ -1,6 +1,6 @@
 from datetime import date
 
-from backend.api.auth import is_admin
+from api.auth import is_admin
 from prompting.enforceUniqueCategories import enforce_unique_categories
 from prompting.summary import createSummary
 from prompting.transformKeysToAnswers import transformKeysToAnswers

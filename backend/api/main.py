@@ -1,8 +1,8 @@
 from typing import List
 
 from api.utils.exceptions import DataProcessingError, OpenAIRequestError
-from backend.api import auth, reflections, reports, courses, units, notifications
-from backend.api.auth import is_admin, protect_route
+from api import auth, reflections, reports, courses, units, notifications
+from api.auth import is_admin, protect_route
 
 
 from . import crud
@@ -23,7 +23,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import JSONResponse
 
 
-from backend.api import database
+from api import database
 
 model.Base.metadata.create_all(bind=engine)
 
