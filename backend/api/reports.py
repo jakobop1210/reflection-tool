@@ -2,7 +2,7 @@ import json
 import os
 
 from api.auth import is_admin
-from api.main import get_unit_data, save_report_endpoint
+from api.units import get_unit_data
 from api.reflections import analyze_feedback
 
 from . import crud
