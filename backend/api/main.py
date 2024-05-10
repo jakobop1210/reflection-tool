@@ -11,9 +11,9 @@ from . import model
 from . import schemas
 
 from authlib.integrations.starlette_client import OAuth
-from .database import SessionLocal, engine
-from authlib.integrations.starlette_client import OAuth, OAuthError
-from .database import SessionLocal, engine, get_db
+from .database import engine
+from authlib.integrations.starlette_client import OAuth
+from .database import engine, get_db
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
