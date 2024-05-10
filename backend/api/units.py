@@ -101,7 +101,7 @@ async def update_unit(request: Request, unit_id: int, ref: schemas.UnitCreate, d
     )
 
 
-async def delete_unit(unit_id: int, ref: schemas.UnitDelete, request: Request, db):
+async def delete_unit(request: Request,unit_id: int, ref: schemas.UnitDelete, db):
     user = request.session.get("user")
     uid: str = user.get("uid")
     unit = crud.get_unit(db, unit_id)
