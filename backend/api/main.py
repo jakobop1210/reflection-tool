@@ -6,7 +6,8 @@ from typing import List
 import requests
 from requests.structures import CaseInsensitiveDict
 from api.utils.exceptions import DataProcessingError, OpenAIRequestError
-from backend.api.auth import check_is_admin, get_user_data
+from backend.api import auth
+from backend.api.auth import is_admin, protect_route
 from prompting.enforceUniqueCategories import enforce_unique_categories
 from prompting.summary import createSummary
 from prompting.transformKeysToAnswers import transformKeysToAnswers
@@ -107,6 +108,7 @@ oauth.register(
     client_secret=CLIENT_SECRET,
 )
 
+
 @app.on_event("startup")
 async def start_db():
     """
@@ -190,52 +192,19 @@ async def login(request: Request):
 
 
 @app.get("/auth")
-async def auth(request: Request, db: Session = Depends(get_db)):
+async def authenticate(request: Request, db: Session = Depends(get_db)):
     """
     This is the callback route for the OAuth2 authentication process.
     It retrieves the access token from the request and stores it in the user's session.
 
     Also creates a user in the database if the user does not already exist.
     """
-    try:
-        token = await oauth.feide.authorize_access_token(request)
-    except OAuthError as error:
-        return HTMLResponse(f"<h1>{error.error}</h1>")
-    bearer_token = token.get("access_token")
-    # print("bearer_token", bearer_token)
-    request.session["scope"] = token.get("scope")
-    request.session["bearer_token"] = bearer_token
-    request.session["user_data"] = get_user_data(bearer_token)
-    user = get_user_data(bearer_token)
-    if user:
-        user = json.loads(user)
-        #  For testing purposes, we can set the user to a test user
-        if config("TEST_ACCOUNT", cast=bool, default=False):
-            user["uid"] = "test"
-            user["mail"] = "test@mail.no"
-        else:
-            user["uid"] = user["uid"][0]
-            user["mail"] = user["mail"][0]
-        request.session["user"] = user
-        email = user.get("mail")
-        uid = user.get("uid")
-        db_user = crud.get_user(db, uid)
-        if not db_user:
-            print("creating user")
-            crud.create_user(
-                db=db, uid=uid, user_email=email, admin=check_is_admin(bearer_token)
-            )
-        else:
-            print("user already exists")
-    else:
-        print("No user data")
-    return RedirectResponse(url=BASE_URL + "/login")
+    return await auth.auth(request, db)
 
 
 @app.get("/logout")
 async def logout(request: Request):
-    request.session.pop("user", None)
-    return RedirectResponse(url=BASE_URL + "/")
+    return await auth.logout(request)
 
 
 @app.post("/reflection", response_model=schemas.Reflection)

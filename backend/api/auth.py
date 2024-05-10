@@ -36,6 +36,35 @@ from fastapi.responses import FileResponse
 
 config = Config(".env")
 
+oauth = OAuth(config)
+
+CONF_URL = "https://auth.dataporten.no/.well-known/openid-configuration"
+SECRET_KEY = config("SECRET_KEY", cast=Secret)
+CLIENT_ID = str(config("client_id", cast=Secret))
+CLIENT_SECRET = str(config("client_secret", cast=Secret))
+
+def is_prod():
+    return config("production", cast=bool, default=False)
+
+
+if is_prod():
+    REDIRECT_URI = config("REDIRECT_URI", cast=str)
+    BASE_URL = config("BASE_URL", cast=str)
+else:
+    REDIRECT_URI = "http://127.0.0.1:8000/auth"
+    BASE_URL = "http://127.0.0.1:5173"
+
+
+oauth.register(
+    name="feide",
+    server_metdata_url=CONF_URL,
+    client_kwards={"scope": "openid"},
+    authorize_url="https://auth.dataporten.no/oauth/authorization",
+    access_token_url="https://auth.dataporten.no/oauth/token",
+    client_id=CLIENT_ID,
+    client_secret=CLIENT_SECRET,
+)
+
 def check_is_admin(bearer_token):
     """
     Checks if the user is an admin by querying the Dataporten API for group memberships.
@@ -100,3 +129,43 @@ def is_admin(db, request):
     if user is None:
         return False
     return user.admin
+
+async def auth(request: Request, db):
+    try:
+        token = await oauth.feide.authorize_access_token(request)
+    except OAuthError as error:
+        return HTMLResponse(f"<h1>{error.error}</h1>")
+    bearer_token = token.get("access_token")
+    # print("bearer_token", bearer_token)
+    request.session["scope"] = token.get("scope")
+    request.session["bearer_token"] = bearer_token
+    request.session["user_data"] = get_user_data(bearer_token)
+    user = get_user_data(bearer_token)
+    if user:
+        user = json.loads(user)
+        #  For testing purposes, we can set the user to a test user
+        if config("TEST_ACCOUNT", cast=bool, default=False):
+            user["uid"] = "test"
+            user["mail"] = "test@mail.no"
+        else:
+            user["uid"] = user["uid"][0]
+            user["mail"] = user["mail"][0]
+        request.session["user"] = user
+        email = user.get("mail")
+        uid = user.get("uid")
+        db_user = crud.get_user(db, uid)
+        if not db_user:
+            print("creating user")
+            crud.create_user(
+                db=db, uid=uid, user_email=email, admin=check_is_admin(bearer_token)
+            )
+        else:
+            print("user already exists")
+    else:
+        print("No user data")
+    return RedirectResponse(url=BASE_URL + "/login")
+
+
+async def logout(request: Request):
+    request.session.pop("user", None)
+    return RedirectResponse(url=BASE_URL + "/")
