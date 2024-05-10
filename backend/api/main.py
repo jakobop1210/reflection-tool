@@ -12,6 +12,8 @@ from . import schemas
 
 from authlib.integrations.starlette_client import OAuth
 from .database import SessionLocal, engine
+from authlib.integrations.starlette_client import OAuth, OAuthError
+from .database import SessionLocal, engine, get_db
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -23,6 +25,8 @@ from starlette.datastructures import Secret
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import JSONResponse
 
+
+from backend.api import database
 
 model.Base.metadata.create_all(bind=engine)
 
@@ -61,15 +65,6 @@ else:
     BASE_URL = "http://127.0.0.1:5173"
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-
-    finally:
-        db.close()
-
-
 oauth.register(
     name="feide",
     server_metdata_url=CONF_URL,
@@ -90,72 +85,7 @@ async def start_db():
     """
     if is_prod():
         return
-
-    print("init database")
-    course_id: str = "TDT4100"
-    semester: str = "fall2023"
-    course_name: str = "Informasjonsteknologi grunnkurs"
-    db = SessionLocal()
-    course = crud.get_course(db, course_id=course_id, course_semester=semester)
-    if course:
-        return
-
-    course = crud.create_course(
-        db,
-        course={
-            "name": course_name,
-            "id": course_id,
-            "semester": semester,
-            "questions": [],
-        },
-    )
-
-    UID = config("UID", cast=str, default="test")
-    EMAIL_USER = config("EMAIL_USER", cast=str, default="test@test.no")
-
-    user = crud.create_user(db, uid=UID, user_email=EMAIL_USER)
-    user0 = crud.create_user(db, uid="test2", user_email="test2@test.no")
-    user1 = crud.create_user(db, uid="test3", user_email="test3@test.no")
-
-    units = [
-        crud.create_unit(
-            db=db,
-            title="State Machines",
-            date_available=datetime(2022, 8, 23),
-            course_id=course.id,
-            course_semester=semester,
-        ),
-        crud.create_unit(
-            db=db,
-            title="HTTP og JSON",
-            date_available=datetime(2022, 8, 30),
-            course_id=course.id,
-            course_semester=semester,
-        ),
-        crud.create_unit(
-            db=db,
-            title="MQTT Chat",
-            date_available=datetime(2024, 9, 7),
-            course_id=course.id,
-            course_semester=semester,
-        ),
-    ]
-
-    for u in units:
-        course.units.append(u)
-        u.course_id = course.id
-        u.course_semester = semester
-
-    await crud.create_enrollment(
-        db=db,
-        course_id="TDT4100",
-        course_semester=semester,
-        role="student",
-        uid=UID,
-    )
-
-    db.commit()
-    db.close()
+    return database.start_db()
 
 
 @app.get("/login")
