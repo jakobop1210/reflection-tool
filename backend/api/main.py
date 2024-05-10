@@ -82,7 +82,7 @@ async def start_db():
     """
     if is_prod():
         return
-    return database.start_db()
+    return await database.start_db()
 
 
 @app.get("/login")
