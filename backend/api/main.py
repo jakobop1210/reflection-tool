@@ -115,7 +115,7 @@ async def create_reflection(
     This saves the response a user has given to a question in a unit.
     """
     protect_route(request)
-    reflections.create_reflection(ref, db)
+    return await reflections.create_reflection(ref, db)
 
 
 @app.delete("/delete_reflection", response_model=schemas.ReflectionDelete)
@@ -126,7 +126,7 @@ async def delete_reflection(
     Deletes a reflection based on the user ID, unit ID, and question ID provided in the `ref` object.
     """
     protect_route(request)
-    reflections.delete_reflection(db, ref, request)
+    return await reflections.delete_reflection(db, ref, request)
 
 
 # Example: /course?course_id=TDT4100&course_semester=fall2023
@@ -245,7 +245,7 @@ async def download_file(
     Downloads the provided report file.
     """
     protect_route(request)
-    reports.download_file(request, ref, db)
+    return await reports.download_file(request, ref, db)
 
 
 # Example: /unit_data?course_id=TDT4100&course_semester=fall2023&unit_id=1
@@ -271,7 +271,7 @@ async def save_report_endpoint(
 ):
     if not is_admin(db, request):
         raise HTTPException(403, detail="You are not an admin user")
-    reports.save_report(db, ref)
+    return await reports.save_report(db, ref)
 
 
 @app.get("/report")
@@ -284,7 +284,7 @@ async def get_report(
     Retrieve a report from the database based on the provided parameters such as course id, unit id, and course semester.
     """
     protect_route(request)
-    reports.get_report(params, db)
+    return await reports.get_report(params, db)
 
 
 @app.post("/create_invitation", response_model=schemas.Invitation)
@@ -295,7 +295,7 @@ async def create_invitation(
     Creates an invitation to an user for a course based on user-details and course-details provided in the `ref` object.
     """
     protect_route(request)
-    notifications.create_invitation(request, ref, db)
+    return notifications.create_invitation(request, ref, db)
 
 
 # get all invitations by user
@@ -305,7 +305,7 @@ async def get_invitations(request: Request, db: Session = Depends(get_db)):
     Retrieves all invitations for a user based on the user ID stored in the session.
     """
     protect_route(request)
-    notifications.get_invitations(request, db)
+    return notifications.get_invitations(request, db)
 
 
 # delete invitation
@@ -329,7 +329,7 @@ async def send_notifications(db: Session = Depends(get_db)):
     email to each student about their pending units, updating the notification count for each unit
     per student.
     """
-    notifications.send_notifications(db)
+    return await notifications.send_notifications(db)
 
 
 @app.post("/analyze_feedback")
@@ -345,7 +345,7 @@ async def analyze_feedback(ref: schemas.ReflectionJSON):
     5. Generating a summary of the categorized feedback.
     """
 
-    reflections.analyze_feedback(ref)
+    return await reflections.analyze_feedback(ref)
 
 
 @app.delete("/unenroll_course")
@@ -379,7 +379,7 @@ async def generate_report(
     """
     if not is_admin(db, request):
         raise HTTPException(403, detail="You are not an admin user")
-    reports.generate_report(request, ref, db)
+    return await reports.generate_report(request, ref, db)
 
 
 @app.exception_handler(DataProcessingError)
